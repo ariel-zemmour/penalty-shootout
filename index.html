@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Soccer 2-Player Local</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="game-container">
+        <div id="hud">
+            <div id="score-p1" class="score blue">PLAYER 1: 0</div>
+            <div id="timer">3:00</div>
+            <div id="score-p2" class="score red">PLAYER 2: 0</div>
+        </div>
+        <canvas id="gameCanvas" width="1000" height="600"></canvas>
+        <div id="overlay" class="hidden">
+            <h1 id="overlay-title">GOAL!</h1>
+            <p id="overlay-subtitle"></p>
+            <button id="rematch-btn" class="hidden">REMATCH</button>
+        </div>
+        <div id="controls-info">
+            <div class="p1-controls">
+                <h3>PLAYER 1 (BLUE)</h3>
+                <p>Move: W, A, S, D</p>
+                <p>Kick: SPACE</p>
+            </div>
+            <div class="p2-controls">
+                <h3>PLAYER 2 (RED)</h3>
+                <p>Move: Arrow Keys</p>
+                <p>Kick: ENTER</p>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
