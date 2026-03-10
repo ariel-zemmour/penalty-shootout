@@ -8,7 +8,9 @@ const UI = {
     overlay: document.getElementById('overlay'),
     overlayTitle: document.getElementById('overlay-title'),
     overlaySubtitle: document.getElementById('overlay-subtitle'),
-    rematchBtn: document.getElementById('rematch-btn')
+    rematchBtn: document.getElementById('rematch-btn'),
+    p1KickBtn: document.getElementById('p1-kick-btn'),
+    p2KickBtn: document.getElementById('p2-kick-btn')
 };
 
 // Game Constants
@@ -116,10 +118,10 @@ class Player {
             let kx = ball.x - this.x;
             let ky = ball.y - this.y;
             const mag = Math.sqrt(kx * kx + ky * ky);
-            if(mag > 0) {
+            if (mag > 0) {
                 kx /= mag;
                 ky /= mag;
-                
+
                 // Extra kick power logic
                 ball.vx += kx * this.kickPower;
                 ball.vy += ky * this.kickPower;
@@ -130,20 +132,20 @@ class Player {
     draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        
+
         // Gradient for simple 3D effect
         let gradient = ctx.createRadialGradient(
-            this.x - this.radius * 0.3, 
-            this.y - this.radius * 0.3, 
-            this.radius * 0.1, 
-            this.x, 
-            this.y, 
+            this.x - this.radius * 0.3,
+            this.y - this.radius * 0.3,
+            this.radius * 0.1,
+            this.x,
+            this.y,
             this.radius
         );
         gradient.addColorStop(0, '#fff');
         gradient.addColorStop(0.2, this.color);
         gradient.addColorStop(1, '#000');
-        
+
         ctx.fillStyle = gradient;
         ctx.fill();
         ctx.closePath();
@@ -215,7 +217,7 @@ class Ball {
                 this.x = this.radius;
                 this.vx *= -1;
             }
-        } 
+        }
         // Right boundary
         else if (this.x + this.radius >= WIDTH) {
             if (inGoalY) {
@@ -229,28 +231,28 @@ class Ball {
                 this.vx *= -1;
             }
         }
-        
+
         // Basic physics to check goal post collision so ball bounces out properly
-        this.checkGoalPostCollision(0, HEIGHT/2 - GOAL_WIDTH/2);
-        this.checkGoalPostCollision(0, HEIGHT/2 + GOAL_WIDTH/2);
-        this.checkGoalPostCollision(WIDTH, HEIGHT/2 - GOAL_WIDTH/2);
-        this.checkGoalPostCollision(WIDTH, HEIGHT/2 + GOAL_WIDTH/2);
+        this.checkGoalPostCollision(0, HEIGHT / 2 - GOAL_WIDTH / 2);
+        this.checkGoalPostCollision(0, HEIGHT / 2 + GOAL_WIDTH / 2);
+        this.checkGoalPostCollision(WIDTH, HEIGHT / 2 - GOAL_WIDTH / 2);
+        this.checkGoalPostCollision(WIDTH, HEIGHT / 2 + GOAL_WIDTH / 2);
     }
-    
+
     checkGoalPostCollision(px, py) {
         const dx = this.x - px;
         const dy = this.y - py;
-        const dist = Math.sqrt(dx*dx + dy*dy);
+        const dist = Math.sqrt(dx * dx + dy * dy);
         const postRadius = 5;
         if (dist < this.radius + postRadius) {
             const nx = dx / dist;
             const ny = dy / dist;
-            
+
             // Push out of post
             const overlap = (this.radius + postRadius) - dist;
             this.x += nx * overlap;
             this.y += ny * overlap;
-            
+
             // Reflect velocity over normal
             const dotProduct = this.vx * nx + this.vy * ny;
             this.vx -= 2 * dotProduct * nx * 0.8; // Dampened
@@ -282,7 +284,7 @@ function resolveCollision(entityA, entityB) {
     const dx = entityB.x - entityA.x;
     const dy = entityB.y - entityA.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    
+
     if (dist < entityA.radius + entityB.radius) {
         // Find normal
         const nx = dx / dist;
@@ -290,7 +292,7 @@ function resolveCollision(entityA, entityB) {
 
         // Penetration logic to keep them from overlapping
         const overlap = (entityA.radius + entityB.radius) - dist;
-        
+
         entityB.x += nx * overlap * 0.5;
         entityB.y += ny * overlap * 0.5;
         entityA.x -= nx * overlap * 0.5;
@@ -299,23 +301,23 @@ function resolveCollision(entityA, entityB) {
         // Elastic Collision response
         const rvx = entityB.vx - entityA.vx;
         const rvy = entityB.vy - entityA.vy;
-        
+
         // Velocity along the normal
         const velAlongNormal = rvx * nx + rvy * ny;
-        
+
         // Do not resolve if velocities are separating
         if (velAlongNormal > 0) return;
-        
+
         // Restitution (bounciness)
         const restitution = 0.6;
-        
+
         // Impulse scalar
         let j = -(1 + restitution) * velAlongNormal;
         j /= (1 / entityA.mass + 1 / entityB.mass);
-        
+
         const impulseX = j * nx;
         const impulseY = j * ny;
-        
+
         entityA.vx -= impulseX / entityA.mass;
         entityA.vy -= impulseY / entityA.mass;
         entityB.vx += impulseX / entityB.mass;
@@ -394,7 +396,7 @@ function updateHUD() {
     UI.scoreP1.innerText = `PLAYER 1: ${score1}`;
     UI.scoreP2.innerText = `PLAYER 2: ${score2}`;
     UI.timer.innerText = formatTime(matchTime);
-    
+
     if (matchTime <= 10 && gameState === 'PLAYING') {
         UI.timer.style.color = '#f62e4a';
     } else {
@@ -418,13 +420,13 @@ function scoreGoal(playerScored) {
         UI.overlayTitle.style.color = 'var(--p2-color)';
     }
     updateHUD();
-    
+
     UI.overlayTitle.innerText = 'GOAL!';
     UI.overlaySubtitle.innerText = `Player ${playerScored} scores!`;
     UI.overlay.classList.remove('hidden');
 
     setTimeout(() => {
-        if(gameState === 'GOAL') {
+        if (gameState === 'GOAL') {
             resetPositions();
             UI.overlay.classList.add('hidden');
             gameState = 'PLAYING';
@@ -436,7 +438,7 @@ function endGame() {
     gameState = 'GAMEOVER';
     UI.overlay.classList.remove('hidden');
     UI.rematchBtn.classList.remove('hidden');
-    
+
     if (score1 > score2) {
         UI.overlayTitle.innerText = 'PLAYER 1 WINS!';
         UI.overlayTitle.style.color = 'var(--p1-color)';
@@ -447,7 +449,7 @@ function endGame() {
         UI.overlayTitle.innerText = 'DRAW!';
         UI.overlayTitle.style.color = '#fff';
     }
-    
+
     UI.overlaySubtitle.innerText = `Final Score: ${score1} - ${score2}`;
 }
 
@@ -457,10 +459,10 @@ UI.rematchBtn.addEventListener('click', () => {
     matchTime = 180;
     resetPositions();
     updateHUD();
-    
+
     UI.overlay.classList.add('hidden');
     UI.rematchBtn.classList.add('hidden');
-    
+
     gameState = 'PLAYING';
 });
 
@@ -471,7 +473,7 @@ function gameLoop(timestamp) {
     lastTime = timestamp;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     // Draw Environment
     drawPitch();
 
@@ -482,7 +484,7 @@ function gameLoop(timestamp) {
             matchTime--;
             timerAccumulator -= 1;
             updateHUD();
-            
+
             if (matchTime <= 0) {
                 endGame();
             }
@@ -497,7 +499,7 @@ function gameLoop(timestamp) {
         resolveCollision(player1, ball);
         resolveCollision(player2, ball);
     }
-    
+
     // Draw Dynamic Entities
     player1.draw();
     player2.draw();
@@ -521,5 +523,33 @@ window.addEventListener('keydown', function startGame(e) {
         window.removeEventListener('keydown', startGame);
     }
 });
+
+// UI Kick Button event listeners
+function bindKickButton(btn, key) {
+    btn.addEventListener('mousedown', () => { keys[key] = true; startGameFromUI(); });
+    btn.addEventListener('mouseup', () => keys[key] = false);
+    btn.addEventListener('mouseleave', () => keys[key] = false);
+
+    // For mobile/touch support
+    btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        keys[key] = true;
+        startGameFromUI();
+    });
+    btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        keys[key] = false;
+    });
+}
+
+function startGameFromUI() {
+    if (gameState === 'START') {
+        gameState = 'PLAYING';
+        UI.overlay.classList.add('hidden');
+    }
+}
+
+bindKickButton(UI.p1KickBtn, p1Controls.kick);
+bindKickButton(UI.p2KickBtn, p2Controls.kick);
 
 requestAnimationFrame(gameLoop);
